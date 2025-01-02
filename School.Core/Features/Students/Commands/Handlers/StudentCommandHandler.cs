@@ -15,21 +15,24 @@ namespace School.Core.Features.Students.Commands.Handlers
     {
         #region Fields 
         private readonly IStudentService _studentService;
+        private readonly IDepartmentService _departmentService;
         private readonly IMapper _mapper;
         private readonly IStringLocalizer<SharedResources> _stringLocalizer;
         #endregion
         #region Constructors 
-        public StudentCommandHandler(IStudentService studentService, IMapper mapper, IStringLocalizer<SharedResources> stringLocalizer)
+        public StudentCommandHandler(IStudentService studentService, IMapper mapper, IStringLocalizer<SharedResources> stringLocalizer, IDepartmentService departmentService)
         {
             _studentService = studentService;
             _mapper = mapper;
             _stringLocalizer = stringLocalizer;
+            _departmentService = departmentService;
         }
 
         #endregion
         #region Handlers
         public async Task<Response<string>> Handle(AddStudentCommand request, CancellationToken cancellationToken)
         {
+
             var studentMapper = _mapper.Map<Student>(request);
 
             var result = await _studentService.AddAsync(studentMapper);

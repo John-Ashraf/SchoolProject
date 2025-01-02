@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using School.Api.Base;
+using School.Api.Filters;
 using School.Core.Features.Students.Commands.Models;
 using School.Core.Features.Students.Queries.Models;
 using School.Data.AppMetaData;
@@ -7,10 +9,12 @@ using School.Data.AppMetaData;
 namespace School.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     public class StudentController : AppControllerBase
     {
 
-
+        [Authorize(Roles = "User")]
+        [ServiceFilter(typeof(AuthFilter))]
         [HttpGet(Router.StudentRouting.List)]
         public async Task<IActionResult> GetStudentList()
         {

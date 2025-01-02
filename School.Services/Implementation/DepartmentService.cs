@@ -29,6 +29,11 @@ namespace School.Services.Implementation
                   .FirstOrDefaultAsync();
         }
 
+        public async Task<bool> IsExist(int id)
+        {
+            return await _departmentRepo.GetTableNoTracking().AnyAsync(x => x.DID == id);
+        }
+
         #endregion
     }
 }

@@ -28,13 +28,13 @@
                 Meta = Meta
             };
         }
-        public Response<T> Unauthorized<T>()
+        public Response<T> Unauthorized<T>(string message = null)
         {
             return new Response<T>()
             {
                 StatusCode = System.Net.HttpStatusCode.Unauthorized,
                 Succeeded = true,
-                Message = "UnAuthorized"
+                Message = "UnAuthorized " + message,
             };
         }
         public Response<T> BadRequest<T>(string Message = null)

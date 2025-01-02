@@ -8,11 +8,13 @@ namespace School.Core.Features.Students.Commands.Validators
     {
         #region Fields
         private readonly IStudentService _studentService;
+        private readonly IDepartmentService _departmentService;
         #endregion
         #region Constructors
-        public AddStudentValidator(IStudentService studentService)
+        public AddStudentValidator(IStudentService studentService, IDepartmentService departmentService)
         {
             _studentService = studentService;
+            _departmentService = departmentService;
             ApplyValidationsRules();
             ApplyCustomValidationsRules();
         }
@@ -20,21 +22,28 @@ namespace School.Core.Features.Students.Commands.Validators
         #region Handle Functions
         public void ApplyValidationsRules()
         {
-            RuleFor(x => x.Name).
+            _ = RuleFor(x => x.Name).
                 NotEmpty().WithMessage("Name Must ")
                 .NotNull().WithMessage("Name Must Be Not Null")
                 .MaximumLength(200).WithMessage("Max Length is 10");
-            RuleFor(x => x.Address)
+
+            _ = RuleFor(x => x.Address)
                 .NotEmpty().WithMessage("{PropertyName} Must Not Be Empty")
                 .NotNull().WithMessage("{PropertyName} Must Be Null")
                 .MaximumLength(100).WithMessage("{PropertyName} Length is 100");
 
+            _ = RuleFor(x => x.DepartmentId)
+            .NotEmpty().WithMessage("{PropertyName} Must Not Be Empty")
+            .NotNull().WithMessage("{PropertyName} Must Be Null");
+
 
         }
-        public void ApplyCustomValidationsRules()
+        public void ApplyCustomValidationsRules()// el false hwa el bedrb error
         {
-            RuleFor(x => x.Name)
+            _ = RuleFor(x => x.Name)
                 .MustAsync(async (Key, CancellationToken) => !await _studentService.IsExist(Key)).WithMessage("Name is Exist");
+            _ = RuleFor(x => x.DepartmentId)
+                .MustAsync(async (Key, CancellationToken) => await _departmentService.IsExist(Key)).WithMessage("Department is not Exist");
         }
         #endregion
 

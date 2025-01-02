@@ -1,10 +1,17 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using School.Api.Filters;
 using School.Core;
 using School.Core.MiddleWare;
+using School.Data.Entities.Identity;
 using School.infrastructure;
 using School.infrastructure.Data;
+using School.infrastructure.Seeder;
 using School.Services;
 using System.Globalization;
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +27,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 builder.Services.AddinfrastructureDependencies();
 builder.Services.AddServicesDependencies();
 builder.Services.AddCoreDependencies();
+builder.Services.ServiceRegisterationmethod(builder.Configuration);
 #endregion
 
 #region Localization
@@ -57,8 +65,25 @@ builder.Services.AddCors(options =>
                           _ = policy.AllowAnyOrigin();
                       });
 });
+builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+builder.Services.AddTransient<IUrlHelper>(x =>
+{
+    var actionContext = x.GetRequiredService<IActionContextAccessor>().ActionContext;
+    var factory = x.GetRequiredService<IUrlHelperFactory>();
+    return factory.GetUrlHelper(actionContext);
+});
 #endregion 
+
+builder.Services.AddTransient<AuthFilter>();
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    await RoleSeeder.SeedAsync(roleManager);
+    await UserSeeder.SeedAsync(userManager);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -74,8 +99,9 @@ app.UseRequestLocalization(options.Value);
 app.UseMiddleware<ErrorHandlerMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors(CORS);
-app.UseAuthorization();
+app.UseStaticFiles();// upload photos
 
+app.UseAuthorization();
 app.MapControllers();
 
 

@@ -22,7 +22,7 @@ namespace School.Core.Mapping.Departments
             //   .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.StudID))
             //   .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
-            _ = CreateMap<Instructor, InstructorResponse>()
+            _ = CreateMap<Data.Entities.Instructor, InstructorResponse>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.InsId))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.EName));
 
